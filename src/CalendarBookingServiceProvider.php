@@ -146,7 +146,10 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
     protected function getMigrations(): array
     {
         return [
-            'create_filament-calendar-booking_table',
+            'create_meetings_table',
+            'create_meeting_available_hours_table',
+            'create_meeting_days_off_table',
+            'create_appointments_table',
         ];
     }
 }
