@@ -12,8 +12,8 @@ use Theanadimukt\CalendarBooking\Database\Factories\MeetingFactory;
 
 class Meeting extends Model
 {
-    use HasFactory,
-        HasSlug;
+    use HasFactory;
+    use HasSlug;
 
     protected $guarded = ['id'];
 

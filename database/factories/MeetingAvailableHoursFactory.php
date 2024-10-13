@@ -3,11 +3,8 @@
 namespace Theanadimukt\CalendarBooking\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Theanadimukt\CalendarBooking\Enums\AppointmentAcceptance;
 use Theanadimukt\CalendarBooking\Enums\Day;
-use Theanadimukt\CalendarBooking\Enums\MeetingStatus;
 use Theanadimukt\CalendarBooking\Models\Meeting;
-
 
 class MeetingAvailableHoursFactory extends Factory
 {
@@ -23,4 +20,3 @@ class MeetingAvailableHoursFactory extends Factory
         ];
     }
 }
-
