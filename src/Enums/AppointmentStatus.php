@@ -1,6 +1,6 @@
 <?php
 
-namespace Theanadimukt\FilamentAppointment\Enums;
+namespace Theanadimukt\CalendarBooking\Enums;
 
 enum AppointmentStatus: int
 {
