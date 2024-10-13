@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Theanadimukt\CalendarBooking\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class CalendarBookingCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'filament-calendar-booking';
 
     public $description = 'My command';
 

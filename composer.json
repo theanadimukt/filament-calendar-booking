@@ -1,29 +1,27 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "theanadimukt/filament-calendar-booking",
+    "description": "A appointment schedule package for filament",
     "keywords": [
-        ":vendor_name",
+        "theanadimukt",
         "laravel",
-        ":package_slug"
+        "filament-calendar-booking"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/theanadimukt/filament-calendar-booking",
     "support": {
-        "issues": "https://github.com/:vendor_slug/:package_slug/issues",
-        "source": "https://github.com/:vendor_slug/:package_slug"
+        "issues": "https://github.com/theanadimukt/filament-calendar-booking/issues",
+        "source": "https://github.com/theanadimukt/filament-calendar-booking"
     },
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "sagar.patel",
+            "email": "sagarpatel9697@gmail.com",
             "role": "Developer"
         }
     ],
     "require": {
         "php": "^8.1",
         "filament/filament": "^3.0",
-        "filament/forms": "^3.0",
-        "filament/tables": "^3.0",
         "spatie/laravel-package-tools": "^1.15.0"
     },
     "require-dev": {
@@ -41,13 +39,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "Theanadimukt\\CalendarBooking\\": "src/",
+            "Theanadimukt\\CalendarBooking\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/"
+            "Theanadimukt\\CalendarBooking\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -67,10 +65,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Theanadimukt\\CalendarBooking\\CalendarBookingServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "CalendarBooking": "Theanadimukt\\CalendarBooking\\Facades\\CalendarBooking"
             }
         }
     },
