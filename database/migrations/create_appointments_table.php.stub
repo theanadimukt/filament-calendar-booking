@@ -12,7 +12,9 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('meeting_id')->constrained();
-            $table->foreignId('guest_id')->constrained('users');
+            $table->string('guest_name');
+            $table->string('guest_email');
+            $table->text('guest_note')->nullable();
             $table->date('appointment_at');
             $table->time('appointment_time');
             $table->tinyInteger('status')->default(AppointmentStatus::Pending->value);

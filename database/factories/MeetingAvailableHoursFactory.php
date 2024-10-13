@@ -5,12 +5,13 @@ namespace Theanadimukt\CalendarBooking\Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Theanadimukt\CalendarBooking\Enums\Day;
 use Theanadimukt\CalendarBooking\Models\Meeting;
+use Theanadimukt\CalendarBooking\Models\MeetingAvailableHours;
 
 class MeetingAvailableHoursFactory extends Factory
 {
-    protected $model = Meeting::class;
+    protected $model = MeetingAvailableHours::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
             'meeting_id' => Meeting::factory(),

@@ -11,14 +11,13 @@ class MeetingFactory extends Factory
 {
     protected $model = Meeting::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
             'title' => $this->faker->sentence(),
             'description' => $this->faker->paragraph(),
             'start_at' => $this->faker->dateTimeBetween('-1 day', 'now'),
             'end_at' => $this->faker->dateTimeBetween('+1 day', '+2 day'),
-            'description' => $this->faker->paragraph,
             'active' => MeetingStatus::Active->value,
             'slots_period_minutes' => 30,
             'appointment_per_slot' => 1,
