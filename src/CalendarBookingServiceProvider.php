@@ -2,7 +2,6 @@
 
 namespace Theanadimukt\CalendarBooking;
 
-use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
@@ -13,7 +12,6 @@ use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Theanadimukt\CalendarBooking\Commands\CalendarBookingCommand;
 use Theanadimukt\CalendarBooking\Testing\TestsCalendarBooking;
 
 class CalendarBookingServiceProvider extends PackageServiceProvider
@@ -24,11 +22,6 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
 
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
         $package->name(static::$name)
             ->hasCommands($this->getCommands())
             ->hasInstallCommand(function (InstallCommand $command) {
@@ -112,7 +105,7 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
     protected function getCommands(): array
     {
         return [
-            CalendarBookingCommand::class,
+            InstallCommand::class,
         ];
     }
 
