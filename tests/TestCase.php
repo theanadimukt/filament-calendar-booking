@@ -13,23 +13,32 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Theanadimukt\CalendarBooking\CalendarBookingServiceProvider;
+use Theanadimukt\CalendarBooking\Tests\Models\User;
+use Theanadimukt\CalendarBooking\Tests\Panel\TestPanelProvider;
 
 class TestCase extends Orchestra
 {
+    use RefreshDatabase;
+    use WithFaker;
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->actingAs(User::factory()->create());
 
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'Theanadimukt\\CalendarBooking\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             ActionsServiceProvider::class,
@@ -45,16 +54,25 @@ class TestCase extends Orchestra
             TablesServiceProvider::class,
             WidgetsServiceProvider::class,
             CalendarBookingServiceProvider::class,
+            TestPanelProvider::class,
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    public function getEnvironmentSetUp($app): void
     {
-        config()->set('database.default', 'testing');
+        config()->set('database.default', 'sqlite');
+        config()->set('database.connections.sqlite', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+        ]);
+        config()->set('auth.providers.users.model', User::class);
+        config()->set('app.key', 'base64:' . base64_encode(
+                Encrypter::generateKey(config()['app.cipher'])
+            ));
+    }
 
-        /*
-        $migration = include __DIR__.'/../database/migrations/create_filament-calendar-booking_table.php.stub';
-        $migration->up();
-        */
+    protected function defineDatabaseMigrations(): void
+    {
+        $this->loadLaravelMigrations();
     }
 }
