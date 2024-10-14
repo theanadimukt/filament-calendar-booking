@@ -27,6 +27,7 @@ class TestCase extends Orchestra
 {
     use RefreshDatabase;
     use WithFaker;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -67,8 +68,8 @@ class TestCase extends Orchestra
         ]);
         config()->set('auth.providers.users.model', User::class);
         config()->set('app.key', 'base64:' . base64_encode(
-                Encrypter::generateKey(config()['app.cipher'])
-            ));
+            Encrypter::generateKey(config()['app.cipher'])
+        ));
     }
 
     protected function defineDatabaseMigrations(): void
