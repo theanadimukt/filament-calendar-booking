@@ -99,43 +99,26 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
         ];
     }
 
-    /**
-     * @return array<class-string>
-     */
     protected function getCommands(): array
     {
-        return [
-            InstallCommand::class,
-        ];
+        return [];
     }
 
-    /**
-     * @return array<string>
-     */
     protected function getIcons(): array
     {
         return [];
     }
 
-    /**
-     * @return array<string>
-     */
     protected function getRoutes(): array
     {
         return [];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     protected function getScriptData(): array
     {
         return [];
     }
 
-    /**
-     * @return array<string>
-     */
     protected function getMigrations(): array
     {
         return [
