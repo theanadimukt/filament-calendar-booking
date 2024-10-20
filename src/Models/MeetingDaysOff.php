@@ -14,6 +14,8 @@ class MeetingDaysOff extends Model
 
     protected $guarded = ['id'];
 
+    protected $table = 'meeting_days_off';
+
     protected $casts = [
         'start_at' => 'date',
         'end_at' => 'date',

@@ -4,6 +4,7 @@ namespace Theanadimukt\CalendarBooking;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Theanadimukt\CalendarBooking\Resources\MeetingResource;
 
 class CalendarBookingPlugin implements Plugin
 {
@@ -14,7 +15,9 @@ class CalendarBookingPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        //
+        $panel->resources([
+            MeetingResource::class,
+        ]);
     }
 
     public function boot(Panel $panel): void

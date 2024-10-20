@@ -2,6 +2,8 @@
 
 namespace Theanadimukt\CalendarBooking\Enums;
 
+use Illuminate\Support\Str;
+
 enum Day: string
 {
     use EnumHelper;
@@ -13,4 +15,9 @@ enum Day: string
     case THURSDAY = 'thursday';
     case FRIDAY = 'friday';
     case SATURDAY = 'saturday';
+
+    public function label(): string
+    {
+        return Str::headline($this->value);
+    }
 }

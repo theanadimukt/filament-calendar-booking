@@ -2,14 +2,21 @@
 
 namespace Theanadimukt\CalendarBooking\Models;
 
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Mews\Purifier\Casts\CleanHtml;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Theanadimukt\CalendarBooking\Database\Factories\MeetingFactory;
 
+/**
+ * @property Collection<MeetingAvailableHours> availableHours
+ */
 class Meeting extends Model
 {
     use HasFactory;
@@ -37,6 +44,21 @@ class Meeting extends Model
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(50)
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function availableHours(): HasMany
+    {
+        return $this->hasMany(MeetingAvailableHours::class);
+    }
+
+    public function daysOff(): HasMany
+    {
+        return $this->hasMany(MeetingDaysOff::class);
     }
 
     protected static function newFactory(): Factory

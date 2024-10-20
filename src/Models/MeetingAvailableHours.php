@@ -29,4 +29,9 @@ class MeetingAvailableHours extends Model
     {
         return MeetingAvailableHoursFactory::new();
     }
+
+    public function scopeForDay($query, $day)
+    {
+        return $query->where('day', $day);
+    }
 }

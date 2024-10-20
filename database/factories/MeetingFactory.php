@@ -3,7 +3,6 @@
 namespace Theanadimukt\CalendarBooking\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Theanadimukt\CalendarBooking\Enums\AppointmentAcceptance;
 use Theanadimukt\CalendarBooking\Enums\MeetingStatus;
 use Theanadimukt\CalendarBooking\Models\Meeting;
 
@@ -23,7 +22,7 @@ class MeetingFactory extends Factory
             'appointment_per_slot' => 1,
             'appointment_notice_days' => 1,
             'cancellation_notice_days' => 1,
-            'appointment_acceptance_mode' => AppointmentAcceptance::Automatic->value,
+            'auto_acceptance' => true,
         ];
     }
 }
