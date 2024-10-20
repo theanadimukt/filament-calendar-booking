@@ -25,6 +25,11 @@ class MeetingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-hand-raised';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::query()->forActive()->count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form

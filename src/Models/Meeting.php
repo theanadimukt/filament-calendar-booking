@@ -61,6 +61,18 @@ class Meeting extends Model
         return $this->hasMany(MeetingDaysOff::class);
     }
 
+    public function scopeForActive($query)
+    {
+        return $query->where('active', true);
+    }
+
+    public function scopeWithinDateRange($query, $date)
+    {
+        return $query
+            ->whereDate('start_at', '<=', $date)
+            ->whereDate('end_at', '>=', $date);
+    }
+
     protected static function newFactory(): Factory
     {
         return MeetingFactory::new();
