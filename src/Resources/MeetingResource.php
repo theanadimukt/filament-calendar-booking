@@ -5,7 +5,6 @@ namespace Theanadimukt\CalendarBooking\Resources;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -14,14 +13,12 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Theanadimukt\CalendarBooking\Forms\AvailableHoursForm;
-use Theanadimukt\CalendarBooking\Enums\Day;
+use Theanadimukt\CalendarBooking\Forms\WeekAvailabilityForm;
 use Theanadimukt\CalendarBooking\Models\Meeting;
 use Theanadimukt\CalendarBooking\Resources\MeetingResource\Pages;
 
 class MeetingResource extends Resource
 {
-
     protected static ?string $model = Meeting::class;
 
     protected static ?string $navigationGroup = 'Calendar Booking';
@@ -65,43 +62,7 @@ class MeetingResource extends Resource
                     ]),
                 Fieldset::make('Availibility')
                     ->columns(3)
-                    ->schema([
-                        Section::make(Day::SUNDAY->label())
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpan(1)
-                            ->schema(AvailableHoursForm::make(Day::SUNDAY)),
-                        Section::make(Day::MONDAY->label())
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpan(1)
-                            ->schema(AvailableHoursForm::make(Day::MONDAY)),
-                        Section::make(Day::TUESDAY->label())
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpan(1)
-                            ->schema(AvailableHoursForm::make(Day::TUESDAY)),
-                        Section::make(Day::WEDNESDAY->label())
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpan(1)
-                            ->schema(AvailableHoursForm::make(Day::WEDNESDAY)),
-                        Section::make(Day::THURSDAY->label())
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpan(1)
-                            ->schema(AvailableHoursForm::make(Day::THURSDAY)),
-                        Section::make(Day::FRIDAY->label())
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpan(1)
-                            ->schema(AvailableHoursForm::make(Day::FRIDAY)),
-                        Section::make(Day::SATURDAY->label())
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpan(1)
-                            ->schema(AvailableHoursForm::make(Day::SATURDAY)),
-                    ]),
+                    ->schema(WeekAvailabilityForm::make()),
                 Fieldset::make('Days Off')
                     ->schema([
                         Repeater::make('daysOff')
@@ -159,7 +120,22 @@ class MeetingResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('title')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('start_at')
+                    ->date()
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('end_at')
+                    ->date()
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\ToggleColumn::make('active')
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->onIcon('heroicon-m-rocket-launch')
+                    ->offIcon('heroicon-m-bolt'),
             ])
             ->filters([
                 //

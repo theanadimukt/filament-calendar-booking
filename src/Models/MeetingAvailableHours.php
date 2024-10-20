@@ -14,12 +14,6 @@ class MeetingAvailableHours extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = [
-        'day' => 'string',
-        'from' => 'time',
-        'to' => 'time',
-    ];
-
     public function meeting(): BelongsTo
     {
         return $this->belongsTo(Meeting::class);

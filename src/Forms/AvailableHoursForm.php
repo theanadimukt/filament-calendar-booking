@@ -2,6 +2,7 @@
 
 namespace Theanadimukt\CalendarBooking\Forms;
 
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
@@ -19,18 +20,15 @@ class AvailableHoursForm
                 ->relationship('availableHours', fn ($query) => $query->forDay($day->value))
                 ->grid()
                 ->defaultItems(0)
-                ->mutateRelationshipDataBeforeFillUsing(function (array $data) use ($day): array {
-                    $data['day'] = $day->value;
-
-                    return $data;
-                })->schema([
-                    TimePicker::make('start_time')
+                ->schema([
+                    Hidden::make('day')->default($day->value),
+                    TimePicker::make('from')
                         ->seconds(false)
                         ->minutesStep(15)
                         ->required(),
-                    TimePicker::make('end_time')
+                    TimePicker::make('to')
                         ->seconds(false)
-                        ->after('start_time')
+                        ->after('from')
                         ->minutesStep(15)
                         ->required(),
                 ]),
