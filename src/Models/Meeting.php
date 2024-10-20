@@ -29,7 +29,6 @@ class Meeting extends Model
         'description' => CleanHtml::class,
         'start_at' => 'date',
         'end_at' => 'date',
-        'active' => 'boolean',
         'slots_period_minutes' => 'integer',
         'appointment_per_slot' => 'integer',
         'appointment_notice_days' => 'integer',
@@ -59,11 +58,6 @@ class Meeting extends Model
     public function daysOff(): HasMany
     {
         return $this->hasMany(MeetingDaysOff::class);
-    }
-
-    public function scopeForActive($query)
-    {
-        return $query->where('active', true);
     }
 
     public function scopeWithinDateRange($query, $date)

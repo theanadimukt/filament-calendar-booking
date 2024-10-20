@@ -58,12 +58,6 @@ class MeetingResource extends Resource
                             ->required()
                             ->relationship(name: 'owner', titleAttribute: 'name')
                             ->searchable(['name', 'email']),
-                        Toggle::make('active')
-                            ->default(true)
-                            ->onColor('success')
-                            ->offColor('danger')
-                            ->onIcon('heroicon-m-rocket-launch')
-                            ->offIcon('heroicon-m-bolt'),
                     ]),
                 Fieldset::make('Availibility')
                     ->columns(3)
@@ -136,11 +130,6 @@ class MeetingResource extends Resource
                     ->date()
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\ToggleColumn::make('active')
-                    ->onColor('success')
-                    ->offColor('danger')
-                    ->onIcon('heroicon-m-rocket-launch')
-                    ->offIcon('heroicon-m-bolt'),
             ])
             ->filters([
                 //
