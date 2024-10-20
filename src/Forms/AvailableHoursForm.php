@@ -4,8 +4,6 @@ namespace Theanadimukt\CalendarBooking\Forms;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Get;
 use Theanadimukt\CalendarBooking\Enums\Day;
 
 class AvailableHoursForm
@@ -13,7 +11,7 @@ class AvailableHoursForm
     public static function make(Day $day): array
     {
         return [
-            Repeater::make('availableHours'.$day->label())
+            Repeater::make('availableHours' . $day->label())
                 ->label('')
                 ->addActionLabel('Add available hours')
                 ->relationship('availableHours', fn ($query) => $query->forDay($day->value))

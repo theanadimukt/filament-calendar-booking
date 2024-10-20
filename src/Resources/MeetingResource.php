@@ -14,14 +14,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Theanadimukt\CalendarBooking\Forms\AvailableHoursForm;
 use Theanadimukt\CalendarBooking\Enums\Day;
+use Theanadimukt\CalendarBooking\Forms\AvailableHoursForm;
 use Theanadimukt\CalendarBooking\Models\Meeting;
 use Theanadimukt\CalendarBooking\Resources\MeetingResource\Pages;
 
 class MeetingResource extends Resource
 {
-
     protected static ?string $model = Meeting::class;
 
     protected static ?string $navigationGroup = 'Calendar Booking';
