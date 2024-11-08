@@ -27,7 +27,7 @@ class MeetingResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::query()->forActive()->count();
+        return static::getModel()::query()->withinDateRange(now())->count();
     }
 
     public static function form(Form $form): Form
@@ -135,7 +135,15 @@ class MeetingResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\CreateAction::make('meeting')
+                    ->icon('heroicon-o-rocket-launch')
+                    ->label('')
+                    ->tooltip('Public page')
+                    ->color('success')
+                    ->url(fn (Meeting $record): string => route('meetings.show', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -143,6 +151,7 @@ class MeetingResource extends Resource
                 ]),
             ]);
     }
+
 
     public static function getRelations(): array
     {
