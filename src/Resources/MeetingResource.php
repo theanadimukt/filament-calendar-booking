@@ -140,7 +140,7 @@ class MeetingResource extends Resource
                     ->label('')
                     ->tooltip('Public page')
                     ->color('success')
-                    ->url(fn (Meeting $record): string => route('meetings.show', $record))
+                    ->url(fn (Meeting $record): string => route('meetings.show', $record->slug))
                     ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

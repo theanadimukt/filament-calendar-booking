@@ -118,7 +118,7 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
 
     protected function getRoutes(): array
     {
-        return ['web'];
+        return [];
     }
 
     protected function getScriptData(): array

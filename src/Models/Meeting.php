@@ -26,6 +26,7 @@ class Meeting extends Model
 
     protected $casts = [
         'title' => 'string',
+        'slug' => 'string',
         'description' => CleanHtml::class,
         'start_at' => 'date',
         'end_at' => 'date',
