@@ -15,7 +15,7 @@ use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Theanadimukt\CalendarBooking\Components\MeetingComponent;
-use Theanadimukt\CalendarBooking\Livewire\Counter;
+use Theanadimukt\CalendarBooking\Livewire\CalendarBooking;
 use Theanadimukt\CalendarBooking\Testing\TestsCalendarBooking;
 
 class CalendarBookingServiceProvider extends PackageServiceProvider
@@ -78,7 +78,7 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
 
         // Handle Stubs
         if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
+            foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
                 $this->publishes([
                     $file->getRealPath() => base_path("stubs/filament-calendar-booking/{$file->getFilename()}"),
                 ], 'filament-calendar-booking-stubs');
@@ -101,8 +101,8 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
     {
         return [
             // AlpineComponent::make('filament-calendar-booking', __DIR__ . '/../resources/dist/components/filament-calendar-booking.js'),
-            Css::make('filament-calendar-booking-styles', __DIR__ . '/../resources/dist/filament-calendar-booking.css'),
-            Js::make('filament-calendar-booking-scripts', __DIR__ . '/../resources/dist/filament-calendar-booking.js'),
+            Css::make('filament-calendar-booking-styles', __DIR__.'/../resources/dist/filament-calendar-booking.css'),
+            Js::make('filament-calendar-booking-scripts', __DIR__.'/../resources/dist/filament-calendar-booking.js'),
         ];
     }
 
@@ -145,6 +145,6 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
 
     protected function registerLivewireComponents(): void
     {
-        Livewire::component('counter', Counter::class);
+        Livewire::component('filament-calendar-booking:guest', CalendarBooking::class);
     }
 }
