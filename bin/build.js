@@ -45,6 +45,6 @@ const defaultOptions = {
 
 compile({
     ...defaultOptions,
-    entryPoints: ['./resources/js/calendar-booking.js'],
+    entryPoints: ['./resources/js/calendar-booking.ts'],
     outfile: './resources/dist/calendar-booking.js',
 })

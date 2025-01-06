@@ -1,0 +1,1 @@
+export const capitalizeFirstLetter = (query: string): string => query.charAt(0).toUpperCase() + query.substring(1);
