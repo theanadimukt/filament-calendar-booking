@@ -78,7 +78,7 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
 
         // Handle Stubs
         if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
+            foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
                 $this->publishes([
                     $file->getRealPath() => base_path("stubs/filament-calendar-booking/{$file->getFilename()}"),
                 ], 'filament-calendar-booking-stubs');
@@ -102,7 +102,7 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
         return [
             // AlpineComponent::make('filament-calendar-booking', __DIR__ . '/../resources/dist/components/filament-calendar-booking.js'),
             // Css::make('calendar-booking-styles', __DIR__.'/../resources/dist/calendar-booking.css'),
-            Js::make('filament-calendar-booking-scripts', __DIR__.'/../resources/dist/calendar-booking.js'),
+            Js::make('filament-calendar-booking-scripts', __DIR__ . '/../resources/dist/calendar-booking.js'),
         ];
     }
 
