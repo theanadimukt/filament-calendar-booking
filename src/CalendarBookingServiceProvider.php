@@ -15,7 +15,7 @@ use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Theanadimukt\CalendarBooking\Components\MeetingComponent;
-use Theanadimukt\CalendarBooking\Livewire\Guest;
+use Theanadimukt\CalendarBooking\Livewire\Booking;
 use Theanadimukt\CalendarBooking\Testing\TestsCalendarBooking;
 
 class CalendarBookingServiceProvider extends PackageServiceProvider
@@ -145,6 +145,6 @@ class CalendarBookingServiceProvider extends PackageServiceProvider
 
     protected function registerLivewireComponents(): void
     {
-        Livewire::component('filament-calendar-booking:guest', Guest::class);
+        Livewire::component('filament-calendar-booking:booking', Booking::class);
     }
 }
