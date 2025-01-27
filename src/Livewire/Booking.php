@@ -33,7 +33,6 @@ class Booking extends Component
 
     public array $availableSlots = []; // Stores the generated time slots
 
-
     public function mount(): void
     {
         $this->date = Carbon::now();
@@ -137,12 +136,10 @@ class Booking extends Component
         }
     }
 
-
     public function bookSlot(string $slot): void
     {
         // Implement appointment booking logic here
         // Example: Emit an event or redirect to the next step
         session()->flash('success', "You have selected the time slot: {$slot}");
     }
-
 }
