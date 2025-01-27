@@ -57,30 +57,29 @@
                 </div>
                 <!-- Date Numbers -->
                 <div class="grid grid-cols-7 gap-4 mt-6">
-                    @foreach (range(1, $date->daysInMonth) as $dateNumber)
-                        @php
-                            // Check if the date is enabled
-                            $isEnabled = in_array($dateNumber, $dateNumbers);
-                        @endphp
+                    @foreach ($dateNumbers as $date)
                         <div class="flex justify-center">
-                            @if($isEnabled)
-                                <!-- Enabled Date (Clickable) -->
+                            @if ($date === null)
+                                <!-- Empty Placeholder -->
+                                <div class="h-10 w-10"></div>
+                            @elseif($date['enabled'])
+                                <!-- Enabled Date -->
                                 <button
                                         class="h-10 w-10 flex items-center justify-center font-semibold rounded-full cursor-pointer
-                        hover:bg-blue-500 hover:text-white
-                        transition"
-                                        wire:click="selectDate({{ $dateNumber }})"
+                           {{ $selectedDate === $date['day'] ? 'bg-red-500 text-white' : 'bg-white text-black' }}
+                           hover:bg-blue-500 hover:text-white transition"
+                                        wire:click="selectDate({{ $date['day'] }})"
                                 >
-                                    {{ $dateNumber }}
+                                    {{ $date['day'] }}
                                 </button>
                             @else
-                                <!-- Disabled Date (Non-Clickable) -->
-                                <p
+                                <!-- Disabled Date -->
+                                <div
                                         class="h-10 w-10 flex items-center justify-center font-semibold rounded-full
-                        bg-gray-300 text-gray-500 cursor-not-allowed"
+                           bg-gray-300 text-gray-500 cursor-not-allowed"
                                 >
-                                    {{ $dateNumber }}
-                                </p>
+                                    {{ $date['day'] }}
+                                </div>
                             @endif
                         </div>
                     @endforeach
