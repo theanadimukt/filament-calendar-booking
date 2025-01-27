@@ -103,7 +103,7 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="text-gray-500">No available slots for the selected date.</p>
+                    <p class="text-gray-500">No slots available for the selected date.</p>
                 @endif
             </div>
         </div>

@@ -33,7 +33,6 @@ class Booking extends Component
 
     public array $availableSlots = []; // Stores the generated time slots
 
-
     public function mount(): void
     {
         $this->date = Carbon::now();
@@ -86,12 +85,24 @@ class Booking extends Component
         $validStart = $monthStart->greaterThanOrEqualTo($meetingStart) ? $monthStart : $meetingStart;
         $validEnd = $monthEnd->lessThanOrEqualTo($meetingEnd) ? $monthEnd : $meetingEnd;
 
-        // Ensure there is an overlap before generating days
+        // Ensure there is an overlap between the meeting date range and the current month
         if ($validStart->lessThanOrEqualTo($validEnd)) {
-            $this->dateNumbers = range(
-                $validStart->day,
-                $validEnd->day
+            $allDates = collect(range($validStart->day, $validEnd->day))->map(
+                fn ($day) => $validStart->copy()->day($day)
             );
+
+            // Exclude dates within meeting_days_off
+            $excludedDates = $this->meeting->daysOff()
+                ->select('start_at', 'end_at')
+                ->get()
+                ->flatMap(function ($dayOff) {
+                    return collect(Carbon::parse($dayOff->start_at)->daysUntil($dayOff->end_at));
+                });
+
+            $this->dateNumbers = $allDates
+                ->reject(fn ($date) => $excludedDates->contains(fn ($excluded) => $date->isSameDay($excluded)))
+                ->map(fn ($date) => $date->day)
+                ->toArray();
         } else {
             $this->dateNumbers = []; // No valid dates in the current month
         }
@@ -99,19 +110,27 @@ class Booking extends Component
 
     public function selectDate(int $dateNumber): void
     {
-        // Validate that the selected date is within the allowed range
         if (! in_array($dateNumber, $this->dateNumbers)) {
-            // Ignore invalid selections
-            return;
+            return; // Ignore invalid date selection
         }
 
-        // Handle the valid date selection logic here
-        // Example: Setting the selected date as `$this->date`
-        $this->date = $this->date->copy()->day($dateNumber);
+        // Get the selected date
+        $selectedDate = $this->date->copy()->day($dateNumber);
+
+        // Check if the selected date falls within an unavailable range
+        $isDayOff = $this->meeting->daysOff()
+            ->whereDate('start_at', '<=', $selectedDate)
+            ->whereDate('end_at', '>=', $selectedDate)
+            ->exists();
+
+        if ($isDayOff) {
+            return; // Ignore unavailable dates
+        }
+
+        $this->date = $selectedDate;
 
         // Fetch and set the available slots for the selected date
         $this->generateSlotsForDate();
-
     }
 
     private function generateSlotsForDate(): void
@@ -119,7 +138,17 @@ class Booking extends Component
         $dayOfWeek = $this->date->format('D'); // Example: 'Mon', 'Tue', etc.
         $this->availableSlots = []; // Reset slots
 
-        // Fetch available hours for the day
+        // Check if the date is entirely unavailable
+        $isDayOff = $this->meeting->daysOff()
+            ->whereDate('start_at', '<=', $this->date)
+            ->whereDate('end_at', '>=', $this->date)
+            ->exists();
+
+        if ($isDayOff) {
+            return; // No slots if the date is unavailable
+        }
+
+        // Fetch available hours for the selected day
         $availableHours = $this->meeting->availableHours()
             ->where('day', strtolower($dayOfWeek))
             ->get();
@@ -131,12 +160,23 @@ class Booking extends Component
 
             // Generate slots within the start and end time
             while ($startTime->lt($endTime)) {
-                $this->availableSlots[] = $startTime->format('H:i'); // Format as "HH:mm"
+                $slotRangeStart = $this->date->copy()->setTimeFrom($startTime);
+                $slotRangeEnd = $this->date->copy()->setTimeFrom($startTime)->addMinutes($slotDuration);
+
+                // Ensure the slot does not overlap with unavailable ranges
+                $isSlotUnavailable = $this->meeting->daysOff()
+                    ->whereDate('start_at', '<=', $slotRangeStart)
+                    ->whereDate('end_at', '>=', $slotRangeEnd)
+                    ->exists();
+
+                if (!$isSlotUnavailable) {
+                    $this->availableSlots[] = $startTime->format('H:i'); // Format as "HH:mm"
+                }
+
                 $startTime->addMinutes($slotDuration);
             }
         }
     }
-
 
     public function bookSlot(string $slot): void
     {
@@ -144,5 +184,4 @@ class Booking extends Component
         // Example: Emit an event or redirect to the next step
         session()->flash('success', "You have selected the time slot: {$slot}");
     }
-
 }
