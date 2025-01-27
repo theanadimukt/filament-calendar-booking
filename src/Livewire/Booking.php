@@ -169,7 +169,7 @@ class Booking extends Component
                     ->whereDate('end_at', '>=', $slotRangeEnd)
                     ->exists();
 
-                if (!$isSlotUnavailable) {
+                if (! $isSlotUnavailable) {
                     $this->availableSlots[] = $startTime->format('H:i'); // Format as "HH:mm"
                 }
 
