@@ -89,7 +89,6 @@ class Booking extends Component
                 ];
             });
 
-
         // Placeholders for empty slots before the first day
         $startingDayOfWeek = $firstDayOfMonth->dayOfWeek; // 0 = Sunday, 6 = Saturday
         $placeholders = array_fill(0, $startingDayOfWeek, null);
@@ -109,7 +108,6 @@ class Booking extends Component
                 'enabled' => $currentDate->between($meetingStart, $meetingEnd) && ! $isDayOff, // Validate within meeting bounds and excludes day-offs
             ];
         }
-
 
         // Combine placeholders with the days
         $this->dateNumbers = array_merge($placeholders, $validDates);
