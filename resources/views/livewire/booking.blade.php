@@ -21,11 +21,11 @@
             {!! $meeting->description !!}
         </div>
     </div>
-    <div class=" flex items-center justify-center">
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
+    <div class="flex items-center justify-center">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-6 lg:gap-8">
 
-            <!-- Column 1 (50%) -->
-            <div class="bg-gray-200 p-6 rounded-lg shadow-md text-center">
+            <!-- Calendar Column -->
+            <div class="lg:col-span-3 bg-gray-200 p-6 rounded-lg shadow-md text-center">
                 <div class="flex justify-between items-center mb-6">
                     <!-- Month and Year -->
                     <p class="text-xl font-bold">
@@ -86,8 +86,8 @@
                 </div>
             </div>
 
-            <!-- Column 2 (50%) -->
-            <div class="bg-gray-200 p-6 rounded-lg shadow-md text-center">
+            <!-- Time Slots Column -->
+            <div class="lg:col-span-3 bg-gray-200 p-6 rounded-lg shadow-md text-center">
                 <h3 class="text-lg font-semibold mb-2">Available Time Slots</h3>
 
                 @if (count($availableSlots) > 0)
@@ -103,6 +103,46 @@
                     </div>
                 @else
                     <p class="text-gray-500">No slots available for the selected date.</p>
+                @endif
+
+            </div>
+
+            <!-- Form Column -->
+            <div class="bg-gray-200 p-6 rounded-lg shadow-md text-center">
+                <!-- Form for booking details -->
+                @if (session()->has('success'))
+                    <div class="mt-6">
+                        <h4 class="text-lg font-semibold">You selected: {{ session('selectedSlot') }}</h4>
+                        <form wire:submit.prevent="submitBooking">
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700">Name</label>
+                                <input type="text" wire:model="guestName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
+                                @error('guestName') <span class="text-red-500">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" wire:model="guestEmail" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
+                                @error('guestEmail') <span class="text-red-500">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700">Note (Optional)</label>
+                                <textarea wire:model="guestNote" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                                @error('guestNote') <span class="text-red-500">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Hidden fields for storing selected date and time -->
+                            <input type="hidden" wire:model="selectedDate">
+                            <input type="hidden" wire:model="selectedSlot">
+
+                            <div class="mt-6">
+                                <button type="submit" class="py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                                    Confirm Appointment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 @endif
             </div>
         </div>

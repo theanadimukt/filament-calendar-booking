@@ -5,6 +5,8 @@ namespace Theanadimukt\CalendarBooking\Livewire;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Livewire\Component;
+use Theanadimukt\CalendarBooking\Enums\AppointmentStatus;
+use Theanadimukt\CalendarBooking\Models\Appointment;
 use Theanadimukt\CalendarBooking\Models\Meeting;
 
 class Booking extends Component
@@ -21,19 +23,17 @@ class Booking extends Component
 
     public string $currentYear;
 
-    /*public array $colStartClasses = [
-        '',
-        'col-start-2',
-        'col-start-3',
-        'col-start-4',
-        'col-start-5',
-        'col-start-6',
-        'col-start-7',
-    ];*/
-
     public int $selectedDate = 0; // Used to highlight the selected date
 
     public array $availableSlots = []; // Stores the generated time slots
+
+    public string $guestName = '';
+
+    public string $guestEmail = '';
+
+    public string $guestNote = '';
+
+    public ?string $selectedSlot = null;
 
     public function mount(): void
     {
@@ -89,7 +89,6 @@ class Booking extends Component
                 ];
             });
 
-
         // Placeholders for empty slots before the first day
         $startingDayOfWeek = $firstDayOfMonth->dayOfWeek; // 0 = Sunday, 6 = Saturday
         $placeholders = array_fill(0, $startingDayOfWeek, null);
@@ -109,7 +108,6 @@ class Booking extends Component
                 'enabled' => $currentDate->between($meetingStart, $meetingEnd) && ! $isDayOff, // Validate within meeting bounds and excludes day-offs
             ];
         }
-
 
         // Combine placeholders with the days
         $this->dateNumbers = array_merge($placeholders, $validDates);
@@ -183,8 +181,38 @@ class Booking extends Component
 
     public function bookSlot(string $slot): void
     {
-        // Implement appointment booking logic here
-        // Example: Emit an event or redirect to the next step
+        $this->selectedSlot = $slot;
         session()->flash('success', "You have selected the time slot: {$slot}");
+        session()->put('selectedSlot', $slot);
+    }
+
+    public function submitBooking(): void
+    {
+        $this->validate([
+            'guestName' => 'required|string|max:255',
+            'guestEmail' => 'required|email',
+            'guestNote' => 'nullable|string',
+        ]);
+
+        Appointment::create([
+            'meeting_id' => $this->meeting->id,
+            'guest_name' => $this->guestName,
+            'guest_email' => $this->guestEmail,
+            'guest_note' => $this->guestNote,
+            'appointment_at' => $this->date->toDateString(),
+            'appointment_time' => $this->selectedSlot,
+            'status' => AppointmentStatus::Pending->value,
+        ]);
+
+        session()->flash('success', 'Your appointment has been booked successfully!');
+        $this->resetForm();
+    }
+
+    private function resetForm(): void
+    {
+        $this->guestName = '';
+        $this->guestEmail = '';
+        $this->guestNote = '';
+        $this->selectedSlot = null;
     }
 }
