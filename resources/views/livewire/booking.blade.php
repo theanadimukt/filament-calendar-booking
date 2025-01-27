@@ -57,11 +57,31 @@
                 </div>
                 <!-- Date Numbers -->
                 <div class="grid grid-cols-7 gap-4 mt-6">
-                    @foreach ($dateNumbers as $dateNumber)
+                    @foreach (range(1, $date->daysInMonth) as $dateNumber)
+                        @php
+                            // Check if the date is enabled
+                            $isEnabled = in_array($dateNumber, $dateNumbers);
+                        @endphp
                         <div class="flex justify-center">
-                            <p class="h-10 w-10 flex items-center justify-center font-semibold rounded-full cursor-pointer  hover:bg-blue-500 hover:text-white transition">
-                                {{ $dateNumber }}
-                            </p>
+                            @if($isEnabled)
+                                <!-- Enabled Date (Clickable) -->
+                                <button
+                                        class="h-10 w-10 flex items-center justify-center font-semibold rounded-full cursor-pointer
+                        hover:bg-blue-500 hover:text-white
+                        transition"
+                                        wire:click="selectDate({{ $dateNumber }})"
+                                >
+                                    {{ $dateNumber }}
+                                </button>
+                            @else
+                                <!-- Disabled Date (Non-Clickable) -->
+                                <p
+                                        class="h-10 w-10 flex items-center justify-center font-semibold rounded-full
+                        bg-gray-300 text-gray-500 cursor-not-allowed"
+                                >
+                                    {{ $dateNumber }}
+                                </p>
+                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -69,8 +89,22 @@
 
             <!-- Column 2 (50%) -->
             <div class="bg-gray-200 p-6 rounded-lg shadow-md text-center">
-                <h3 class="text-lg font-semibold mb-2">Time Slots</h3>
-                <p class="text-gray-600">Add time slots here and booking form</p>
+                <h3 class="text-lg font-semibold mb-2">Available Time Slots</h3>
+
+                @if (count($availableSlots) > 0)
+                    <div class="grid grid-cols-2 gap-4">
+                        @foreach ($availableSlots as $slot)
+                            <button
+                                    class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                    wire:click="bookSlot('{{ $slot }}')"
+                            >
+                                {{ $slot }}
+                            </button>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-gray-500">No available slots for the selected date.</p>
+                @endif
             </div>
         </div>
     </div>
