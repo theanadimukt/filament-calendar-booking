@@ -1,149 +1,96 @@
 <div class="container mx-auto">
+    <!-- Meeting Details -->
     <div class="mx-auto max-w-3xl mb-10 text-center">
         <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
             {{ \Illuminate\Support\Str::headline($meeting->title) }}
         </h2>
-        <p class="text-gray-600 mt-4 flex items-center justify-center text-center space-x-4">
-            <x-filament::icon icon="heroicon-o-clock" class="w-6 h-6" />&nbsp;
+        <p class="text-gray-600 mt-4 flex items-center justify-center space-x-4">
+            <x-filament::icon icon="heroicon-o-clock" class="w-6 h-6" />
             {{ $meeting->slots_period_minutes }} Minutes
             <span class="text-gray-900">|</span>
-            <x-filament::icon icon="heroicon-o-calendar-date-range" class="w-6 h-6" />&nbsp;
+            <x-filament::icon icon="heroicon-o-calendar-date-range" class="w-6 h-6" />
             @if ($meeting->start_at->year === $meeting->end_at->year)
-                {{ $meeting->start_at->format('d-M') }} to {{ $meeting->end_at->format('d-M') }} {{ $meeting->end_at->format('Y') }}
+                {{ $meeting->start_at->format('d-M') }} to {{ $meeting->end_at->format('d-M Y') }}
             @else
                 {{ $meeting->start_at->format('d-M-Y') }} to {{ $meeting->end_at->format('d-M-Y') }}
             @endif
         </p>
-
-
         <hr class="border-t mt-4 border-gray-300" />
         <div class="mt-4 text-gray-500 sm:text-xl">
             {!! $meeting->description !!}
         </div>
     </div>
-    <div class="flex items-center justify-center">
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-6 lg:gap-8">
 
-            <!-- Calendar Column -->
-            <div class="lg:col-span-3 bg-gray-200 p-6 rounded-lg shadow-md text-center">
-                <div class="flex justify-between items-center mb-6">
-                    <!-- Month and Year -->
-                    <p class="text-xl font-bold">
-                        {{ $currentMonth }} {{ $currentYear }}
-                    </p>
-                    <!-- Navigation Buttons -->
-                    <div class="flex gap-4">
-                        <button
-                                wire:click="prevMonth"
-                                class="font-semibold">
-                            Previous
-                        </button>
-                        <button
-                                wire:click="nextMonth"
-                                class="font-semibold">
-                            Next
-                        </button>
-                    </div>
-                </div>
-                <!-- Separator -->
-                <hr class="border-t border-gray-300" />
-                <!-- Days of the Week -->
-                <div class="grid grid-cols-7 gap-4 mt-6 text-sm font-bold">
-                    @foreach($days as $day)
-                        <div>
-                            {{ \Illuminate\Support\Str::ucfirst($day) }}
-                        </div>
-                    @endforeach
-                </div>
-                <!-- Date Numbers -->
-                <div class="grid grid-cols-7 gap-4 mt-6">
-                    @foreach ($dateNumbers as $date)
-                        <div class="flex justify-center">
-                            @if ($date === null)
-                                <!-- Empty Placeholder -->
-                                <div class="h-10 w-10"></div>
-                            @elseif($date['enabled'])
-                                <!-- Enabled Date -->
-                                <button
-                                        class="h-10 w-10 flex items-center justify-center font-semibold rounded-full cursor-pointer
-                           {{ $selectedDate === $date['day'] ? 'bg-red-500 text-white' : 'bg-white text-black' }}
-                           hover:bg-blue-500 hover:text-white transition"
-                                        wire:click="selectDate({{ $date['day'] }})"
-                                >
-                                    {{ $date['day'] }}
-                                </button>
-                            @else
-                                <!-- Disabled Date -->
-                                <div
-                                        class="h-10 w-10 flex items-center justify-center font-semibold rounded-full
-                           bg-gray-300 text-gray-500 cursor-not-allowed"
-                                >
-                                    {{ $date['day'] }}
-                                </div>
-                            @endif
-                        </div>
-                    @endforeach
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
+        <!-- Calendar Column -->
+        <div class="bg-gray-200 p-6 rounded-lg shadow-md text-center">
+            <!-- Month Navigation -->
+            <div class="flex justify-between items-center mb-6">
+                <p class="text-xl font-bold">{{ $currentMonth }} {{ $currentYear }}</p>
+                <div class="flex gap-4">
+                    <button wire:click="prevMonth" class="font-semibold">Previous</button>
+                    <button wire:click="nextMonth" class="font-semibold">Next</button>
                 </div>
             </div>
+            <hr class="border-t border-gray-300" />
 
-            <!-- Time Slots Column -->
-            <div class="lg:col-span-3 bg-gray-200 p-6 rounded-lg shadow-md text-center">
-                <h3 class="text-lg font-semibold mb-2">Available Time Slots</h3>
+            <!-- Days of the Week -->
+            <div class="grid grid-cols-7 gap-4 mt-6 text-sm font-bold">
+                @foreach ($days as $day)
+                    <div>{{ ucfirst($day) }}</div>
+                @endforeach
+            </div>
 
-                @if (count($availableSlots) > 0)
-                    <div class="grid grid-cols-2 gap-4">
-                        @foreach ($availableSlots as $slot)
+            <!-- Date Numbers -->
+            <div class="grid grid-cols-7 gap-4 mt-6">
+                @foreach ($dateNumbers as $date)
+                    <div class="flex justify-center">
+                        @if (is_null($date))
+                            <div class="h-10 w-10"></div>
+                        @else
                             <button
-                                    class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                                    wire:click="bookSlot('{{ $slot }}')"
-                            >
-                                {{ $slot }}
+                                    class="h-10 w-10 flex items-center justify-center font-semibold rounded-full transition
+                                {{ $date['enabled'] ? ($selectedDate === $date['day'] ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-blue-500 hover:text-white') : 'bg-gray-300 text-gray-500 cursor-not-allowed' }}"
+                                    wire:click="{{ $date['enabled'] ? "selectDate({$date['day']})" : '' }}"
+                                    {{ !$date['enabled'] ? 'disabled' : '' }}>
+                                {{ $date['day'] }}
                             </button>
-                        @endforeach
+                        @endif
                     </div>
-                @else
-                    <p class="text-gray-500">No slots available for the selected date.</p>
-                @endif
-
+                @endforeach
             </div>
+        </div>
 
-            <!-- Form Column -->
-            <div class="bg-gray-200 p-6 rounded-lg shadow-md text-center">
-                <!-- Form for booking details -->
-                @if (session()->has('success'))
-                    <div class="mt-6">
-                        <h4 class="text-lg font-semibold">You selected: {{ session('selectedSlot') }}</h4>
-                        <form wire:submit.prevent="submitBooking">
-                            <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700">Name</label>
-                                <input type="text" wire:model="guestName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
-                                @error('guestName') <span class="text-red-500">{{ $message }}</span> @enderror
-                            </div>
+        <!-- Time Slots Column -->
+        <div class="bg-gray-200 p-6 rounded-lg shadow-md text-center">
+            <h3 class="text-lg font-semibold mb-2">Available Time Slots</h3>
+            @if ($availableSlots)
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    @foreach ($availableSlots as $slot)
+                        <button
+                                class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                wire:click="bookSlot('{{ $slot }}')">
+                            {{ $slot }}
+                        </button>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-gray-500">No slots available for the selected date.</p>
+            @endif
+        </div>
 
-                            <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700">Email</label>
-                                <input type="email" wire:model="guestEmail" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
-                                @error('guestEmail') <span class="text-red-500">{{ $message }}</span> @enderror
-                            </div>
+        <!-- Booking Form Column -->
+        <div class="col-span-2 bg-gray-200 p-6 rounded-lg shadow-md text-center">
+            <div class="mt-6">
+                <h4 class="text-lg font-semibold">You selected: {{ session('selectedSlot') }}</h4>
+                <form wire:submit="createAppointment">
+                    {{ $this->form }}
 
-                            <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700">Note (Optional)</label>
-                                <textarea wire:model="guestNote" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
-                                @error('guestNote') <span class="text-red-500">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Hidden fields for storing selected date and time -->
-                            <input type="hidden" wire:model="selectedDate">
-                            <input type="hidden" wire:model="selectedSlot">
-
-                            <div class="mt-6">
-                                <button type="submit" class="py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600 transition">
-                                    Confirm Appointment
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                @endif
+                    <button type="submit">
+                        Submit
+                    </button>
+                </form>
             </div>
         </div>
     </div>

@@ -2,6 +2,12 @@
 
 namespace Theanadimukt\CalendarBooking\Livewire;
 
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -9,8 +15,12 @@ use Theanadimukt\CalendarBooking\Enums\AppointmentStatus;
 use Theanadimukt\CalendarBooking\Models\Appointment;
 use Theanadimukt\CalendarBooking\Models\Meeting;
 
-class Booking extends Component
+class Booking extends Component implements HasForms
 {
+    use InteractsWithForms;
+
+    public ?array $data = [];
+
     public Meeting $meeting;
 
     public Carbon $date;
@@ -23,45 +33,39 @@ class Booking extends Component
 
     public string $currentYear;
 
-    public int $selectedDate = 0; // Used to highlight the selected date
+    public int $selectedDate = 0; // Highlights the selected date
 
-    public array $availableSlots = []; // Stores the generated time slots
-
-    public string $guestName = '';
-
-    public string $guestEmail = '';
-
-    public string $guestNote = '';
+    public array $availableSlots = []; // Stores generated time slots
 
     public ?string $selectedSlot = null;
 
     public function mount(): void
     {
+        $this->form->fill();
         $this->date = Carbon::now();
         $this->updateCalendar();
     }
 
     public function render(): View
     {
-
         return view('filament-calendar-booking::livewire.booking');
     }
 
+    // Navigation Methods
     public function nextMonth(): void
     {
-        $this->date = $this->date->addMonth(); // Move to the next month
+        $this->date->addMonth();
         $this->updateCalendar();
-
     }
 
     public function prevMonth(): void
     {
-        $this->date = $this->date->subMonth(); // Move to the previous month
+        $this->date->subMonth();
         $this->updateCalendar();
-
     }
 
-    public function updateCalendar(): void
+    // Calendar Update Methods
+    private function updateCalendar(): void
     {
         $this->currentMonth = $this->date->format('F');
         $this->currentYear = $this->date->format('Y');
@@ -70,149 +74,144 @@ class Booking extends Component
 
     private function generateDays(): void
     {
-        // Get the first and last days of the current month
         $firstDayOfMonth = $this->date->copy()->startOfMonth();
         $lastDayOfMonth = $this->date->copy()->endOfMonth();
 
-        // Meeting date constraints
         $meetingStart = $this->meeting->start_at->copy()->startOfDay();
         $meetingEnd = $this->meeting->end_at->copy()->endOfDay();
 
-        // Get meeting days off
-        $daysOff = $this->meeting->daysOff()
-            ->select('start_at', 'end_at')
-            ->get()
-            ->map(function ($dayOff) {
-                return [
-                    'start_at' => Carbon::create($dayOff->start_at),
-                    'end_at' => Carbon::create($dayOff->end_at),
-                ];
-            });
+        $daysOff = $this->meeting->daysOff()->get()->map(fn ($dayOff) => [
+            'start_at' => Carbon::create($dayOff->start_at),
+            'end_at' => Carbon::create($dayOff->end_at),
+        ]);
 
-        // Placeholders for empty slots before the first day
-        $startingDayOfWeek = $firstDayOfMonth->dayOfWeek; // 0 = Sunday, 6 = Saturday
-        $placeholders = array_fill(0, $startingDayOfWeek, null);
+        $placeholders = array_fill(0, $firstDayOfMonth->dayOfWeek, null);
 
-        // Generate valid dates within the calendar month and within the meeting's constraints
         $validDates = [];
         for ($day = 1; $day <= $lastDayOfMonth->day; $day++) {
             $currentDate = $firstDayOfMonth->copy()->day($day);
 
-            // Check if the date is within a day-off range
-            $isDayOff = $daysOff->contains(function ($dayOff) use ($currentDate) {
-                return $currentDate->between($dayOff['start_at'], $dayOff['end_at']);
-            });
+            $isDayOff = $daysOff->contains(fn ($dayOff) => $currentDate->between($dayOff['start_at'], $dayOff['end_at']));
 
             $validDates[] = [
                 'day' => $day,
-                'enabled' => $currentDate->between($meetingStart, $meetingEnd) && ! $isDayOff, // Validate within meeting bounds and excludes day-offs
+                'enabled' => $currentDate->between($meetingStart, $meetingEnd) && ! $isDayOff,
             ];
         }
 
-        // Combine placeholders with the days
         $this->dateNumbers = array_merge($placeholders, $validDates);
-
     }
 
     public function selectDate(int $dateNumber): void
     {
-        // Ensure the selected date is within the valid date range
-        $selectedDay = collect($this->dateNumbers)->filter(function ($date) use ($dateNumber) {
-            return is_array($date) && $date['day'] === $dateNumber && $date['enabled'];
-        })->first();
+        $selectedDay = collect($this->dateNumbers)->firstWhere('day', $dateNumber);
 
-        // If the day is not enabled, ignore the selection
-        if (! $selectedDay) {
+        if (! $selectedDay['enabled'] ?? false) {
             return;
         }
 
-        $this->selectedDate = $dateNumber; // Highlight the selected date
-        $this->date = $this->date->copy()->day($dateNumber); // Update the selected date
-
-        // Optionally, generate time slots or additional logic can be handled here
+        $this->selectedDate = $dateNumber;
+        $this->date->day($dateNumber);
         $this->generateSlotsForDate();
     }
 
     private function generateSlotsForDate(): void
     {
-        $dayOfWeek = $this->date->format('D'); // Example: 'Mon', 'Tue', etc.
-        $this->availableSlots = []; // Reset slots
+        $dayOfWeek = strtolower($this->date->format('D'));
+        $this->availableSlots = [];
 
-        // Check if the date is entirely unavailable
-        $isDayOff = $this->meeting->daysOff()
-            ->whereDate('start_at', '<=', $this->date)
-            ->whereDate('end_at', '>=', $this->date)
-            ->exists();
-
-        if ($isDayOff) {
-            return; // No slots if the date is unavailable
+        if ($this->isDayOff($this->date)) {
+            return;
         }
 
-        // Fetch available hours for the selected day
-        $availableHours = $this->meeting->availableHours()
-            ->where('day', strtolower($dayOfWeek))
-            ->get();
+        $availableHours = $this->meeting->availableHours()->where('day', $dayOfWeek)->get();
+        $slotDuration = $this->meeting->slots_period_minutes;
 
         foreach ($availableHours as $hours) {
-            $startTime = Carbon::createFromTimeString($hours->from);
-            $endTime = Carbon::createFromTimeString($hours->to);
-            $slotDuration = $this->meeting->slots_period_minutes;
-
-            // Generate slots within the start and end time
-            while ($startTime->lt($endTime)) {
-                $slotRangeStart = $this->date->copy()->setTimeFrom($startTime);
-                $slotRangeEnd = $this->date->copy()->setTimeFrom($startTime)->addMinutes($slotDuration);
-
-                // Ensure the slot does not fall within an unavailable (day-off) range
-                $isSlotUnavailable = $this->meeting->daysOff()
-                    ->whereDate('start_at', '<=', $slotRangeStart)
-                    ->whereDate('end_at', '>=', $slotRangeEnd)
-                    ->exists();
-
-                if (! $isSlotUnavailable) {
-                    $this->availableSlots[] = $startTime->format('H:i'); // Format as "HH:mm"
-                }
-
-                $startTime->addMinutes($slotDuration);
-            }
+            $this->generateTimeSlots($hours->from, $hours->to, $slotDuration);
         }
-
     }
 
+    private function generateTimeSlots(string $start, string $end, int $duration): void
+    {
+        $startTime = Carbon::createFromTimeString($start);
+        $endTime = Carbon::createFromTimeString($end);
+
+        while ($startTime->lt($endTime)) {
+            $slotStart = $this->date->copy()->setTimeFrom($startTime);
+            $slotEnd = $slotStart->copy()->addMinutes($duration);
+
+            if (! $this->isSlotUnavailable($slotStart, $slotEnd)) {
+                $this->availableSlots[] = $startTime->format('H:i');
+            }
+
+            $startTime->addMinutes($duration);
+        }
+    }
+
+    private function isDayOff(Carbon $date): bool
+    {
+        return $this->meeting->daysOff()
+            ->whereDate('start_at', '<=', $date)
+            ->whereDate('end_at', '>=', $date)
+            ->exists();
+    }
+
+    private function isSlotUnavailable(Carbon $start, Carbon $end): bool
+    {
+        return $this->meeting->daysOff()
+            ->whereDate('start_at', '<=', $start)
+            ->whereDate('end_at', '>=', $end)
+            ->exists();
+    }
+
+    // Booking Methods
     public function bookSlot(string $slot): void
     {
         $this->selectedSlot = $slot;
         session()->flash('success', "You have selected the time slot: {$slot}");
-        session()->put('selectedSlot', $slot);
     }
 
-    public function submitBooking(): void
+    public function form(Form $form): Form
     {
-        $this->validate([
-            'guestName' => 'required|string|max:255',
-            'guestEmail' => 'required|email',
-            'guestNote' => 'nullable|string',
-        ]);
+        return $form
+            ->schema([
+                TextInput::make('name')
+                    ->required()
+                    ->maxLength(255)
+                    ->autofocus(),
+                TextInput::make('email')
+                    ->email()
+                    ->required()
+                    ->maxLength(255)
+                    ->unique(),
+                Textarea::make('note')
+                    ->columnSpan(2)
+                    ->maxLength(500),
+            ])
+            ->columns(2)
+            ->statePath('data');
+    }
+
+    public function createAppointment(): void
+    {
+        $data = $this->form->getState();
 
         Appointment::create([
-            'meeting_id' => $this->meeting->id,
-            'guest_name' => $this->guestName,
-            'guest_email' => $this->guestEmail,
-            'guest_note' => $this->guestNote,
+            'meeting_id' => $this->meeting->getKey(),
+            'guest_name' => $data['name'],
+            'guest_email' => $data['email'],
+            'guest_note' => $data['note'],
             'appointment_at' => $this->date->toDateString(),
             'appointment_time' => $this->selectedSlot,
             'status' => AppointmentStatus::Pending->value,
         ]);
 
-        session()->flash('success', 'Your appointment has been booked successfully!');
-        $this->resetForm();
-    }
+        Notification::make()
+            ->title('Appointment booked successfully')
+            ->success()
+            ->send();
 
-    private function resetForm(): void
-    {
-        $this->guestName = '';
-        $this->guestEmail = '';
-        $this->guestNote = '';
-        $this->selectedSlot = null;
+        $this->form->fill();
     }
 }
